@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1021" />
+    <meta name="description" content="닉네임만 정하면 바로 들어오는 저장 없는 게스트 채팅 라운지" />
+    <title>guest/chat — 가볍게, 지금만</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+
+    <main class="app-shell">
+      <section class="entry-view" id="entryView" aria-labelledby="entryTitle">
+        <div class="entry-visual" aria-hidden="true">
+          <div class="prism prism-large"></div>
+          <div class="prism prism-small"></div>
+          <span class="orbit orbit-one"></span>
+          <span class="orbit orbit-two"></span>
+        </div>
+
+        <div class="entry-copy">
+          <div class="brand-mark" aria-label="guest/chat 로고">
+            <span class="brand-symbol"><span></span><span></span></span>
+            <span>guest<span class="brand-slash">/</span>chat</span>
+          </div>
+          <div class="eyebrow"><span class="live-dot"></span> open lounge · 01</div>
+          <h1 id="entryTitle">이름만 정하면,<br /><em>바로 대화</em>할 수 있어요.</h1>
+          <p class="entry-description">가입도, 기록도 없이 잠깐 머무는 대화 공간.<br />지금 이 브라우저 안에서만 가볍게 이어져요.</p>
+
+          <form class="nickname-form" id="nicknameForm" novalidate>
+            <label for="nicknameInput">오늘 사용할 닉네임</label>
+            <div class="field-wrap">
+              <span class="field-prefix">@</span>
+              <input id="nicknameInput" name="nickname" type="text" maxlength="18" autocomplete="off" placeholder="예: prism_dawn" aria-describedby="nicknameHint nicknameError" />
+              <span class="char-count" id="nicknameCount">0/18</span>
+            </div>
+            <p class="field-hint" id="nicknameHint">최대 18자 · 특수문자도 괜찮아요</p>
+            <p class="field-error" id="nicknameError" role="alert"></p>
+            <button class="primary-button" type="submit">
+              <span>라운지 들어가기</span>
+              <span class="button-arrow">↗</span>
+            </button>
+          </form>
+
+          <div class="privacy-note"><span class="lock-icon">⌁</span><span>대화는 저장되지 않아요. 일정 시간이 지나면 자동으로 사라져요.</span></div>
+          <p class="setup-notice is-hidden" id="setupNotice" role="alert"></p>
+        </div>
+        <div class="entry-footer"><span>NO ACCOUNT</span><span class="footer-line"></span><span>JUST A MOMENT TO TALK</span></div>
+      </section>
+
+      <section class="chat-view is-hidden" id="chatView" aria-labelledby="chatTitle">
+        <aside class="lounge-rail">
+          <div class="rail-top">
+            <div class="brand-mark" aria-label="guest/chat 로고">
+              <span class="brand-symbol"><span></span><span></span></span>
+              <span>guest<span class="brand-slash">/</span>chat</span>
+            </div>
+            <div class="rail-index">ROOM 01</div>
+          </div>
+
+          <div class="rail-room-card">
+            <div class="room-orb" aria-hidden="true"><span></span></div>
+            <div>
+              <span class="card-kicker">NOW OPEN</span>
+              <strong>잠깐의 라운지</strong>
+              <p>흘러가는 얘기를<br />가볍게 남겨보세요.</p>
+            </div>
+          </div>
+
+          <div class="rail-details">
+            <div class="detail-row"><span>상태</span><strong id="connectionState"><i class="status-dot"></i> 연결 중</strong></div>
+            <div class="detail-row"><span>보이는 사람</span><strong id="participantCount">1명</strong></div>
+            <div class="detail-row"><span>대화 보관</span><strong class="detail-accent">안 함</strong></div>
+          </div>
+
+          <div class="rail-spacer"></div>
+          <div class="your-profile">
+            <div class="avatar avatar-current" id="currentAvatar">?</div>
+            <div class="profile-copy"><span>YOU ARE</span><strong id="currentNickname">guest</strong></div>
+            <button class="icon-button" id="changeNicknameButton" type="button" aria-label="닉네임 변경" title="닉네임 변경">↗</button>
+          </div>
+          <p class="rail-caption">이 탭을 닫으면 이 공간도<br />조용히 사라져요.</p>
+        </aside>
+
+        <section class="conversation-panel">
+          <header class="conversation-header">
+            <div>
+              <div class="header-kicker"><span class="live-dot"></span> LIVE / EPHEMERAL</div>
+              <h2 id="chatTitle">무제 라운지</h2>
+            </div>
+            <div class="header-actions">
+              <span class="ephemeral-pill">휘발성 대화</span>
+              <button class="icon-button" id="resetChatButton" type="button" aria-label="대화 초기화" title="대화 초기화">↻</button>
+            </div>
+          </header>
+
+          <div class="message-area" id="messageArea" aria-live="polite" aria-label="채팅 메시지">
+            <div class="date-divider"><span>오늘 · 방금 열림</span></div>
+            <div class="system-message"><span class="system-icon">✦</span><p>여러 컴퓨터의 게스트가 같은 라운지에서 대화할 수 있어요.<br />메시지는 임시 릴레이 후 자동으로 정리됩니다.</p></div>
+            <div class="message-list" id="messageList"></div>
+          </div>
+
+          <div class="composer-wrap">
+            <div class="quick-prompts" aria-label="빠른 메시지">
+              <button type="button" data-message="안녕하세요, 잠깐 들렀어요.">안녕하세요, 잠깐 들렀어요.</button>
+              <button type="button" data-message="오늘 하루는 어땠어요?">오늘 하루는 어땠어요?</button>
+              <button type="button" data-message="좋은 하루 보내요 ✦">좋은 하루 보내요 ✦</button>
+            </div>
+            <form class="composer" id="messageForm" novalidate>
+              <label class="sr-only" for="messageInput">메시지 입력</label>
+              <textarea id="messageInput" rows="1" maxlength="240" placeholder="지금 하고 싶은 말을 적어보세요..." aria-describedby="messageError"></textarea>
+              <div class="composer-bottom">
+                <span class="composer-note"><span class="keyboard-key">↵</span> 전송</span>
+                <div class="composer-right">
+                  <span class="char-count" id="messageCount">0/240</span>
+                  <button class="send-button" type="submit" aria-label="메시지 보내기"><span>보내기</span><span>↗</span></button>
+                </div>
+              </div>
+            </form>
+            <p class="field-error composer-error" id="messageError" role="alert"></p>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="app.js" defer></script>
+  </body>
+</html>
