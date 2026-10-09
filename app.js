@@ -59,6 +59,7 @@
   const setConnectionState = (label, online) => {
     connectionState.innerHTML = `<i class="status-dot"></i> ${escapeText(label)}`;
     connectionState.classList.toggle('detail-accent', Boolean(online));
+    isConnected = Boolean(online);
   };
   const showSetupNotice = (text) => { setupNotice.textContent = text; setupNotice.classList.remove('is-hidden'); };
   const hideSetupNotice = () => { setupNotice.textContent = ''; setupNotice.classList.add('is-hidden'); };
@@ -172,18 +173,20 @@
     hideSetupNotice();
     setConnectionState('연결 중', false);
     const roomChannelName = `guestchat-room-${room.id}`;
-    channel = supabaseClient.channel(roomChannelName, {
+    const roomChannel = supabaseClient.channel(roomChannelName, {
       config: { broadcast: { self: true }, presence: { key: clientId } },
     });
-    channel
+    channel = roomChannel;
+    roomChannel
       .on('broadcast', { event: 'message' }, ({ payload }) => addIncomingMessage(payload))
       .on('presence', { event: 'sync' }, updateParticipantCount)
       .on('presence', { event: 'join' }, updateParticipantCount)
       .on('presence', { event: 'leave' }, updateParticipantCount)
       .subscribe(async (status) => {
+        if (channel !== roomChannel) return;
         if (status === 'SUBSCRIBED') {
           setConnectionState('연결됨', true);
-          const tracked = await channel?.track({ nickname: activeNickname, joinedAt: Date.now() });
+          const tracked = await roomChannel.track({ nickname: activeNickname, joinedAt: Date.now() });
           if (tracked && tracked !== 'ok') console.warn('Presence tracking returned:', tracked);
           updateParticipantCount();
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
@@ -257,7 +260,7 @@
     event.preventDefault();
     const text = messageInput.value.trim();
     if (!text) return showMessageError('메시지를 입력한 뒤 보내 주세요.');
-    if (!channel || connectionState.textContent.includes('실패') || connectionState.textContent.includes('대기')) return showMessageError('실시간 방에 연결된 뒤 메시지를 보낼 수 있어요.');
+    if (!channel || !isConnected) return showMessageError('실시간 방에 연결된 뒤 메시지를 보낼 수 있어요.');
     const payload = { id: `${clientId}-${Date.now()}`, uid: clientId, nickname: activeNickname, text, createdAt: Date.now() };
     const activeChannel = channel;
     const result = await activeChannel.send({ type: 'broadcast', event: 'message', payload });
